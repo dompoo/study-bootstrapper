@@ -40,13 +40,6 @@ body:
     validations:
       required: true
 
-  - type: input
-    id: youtube
-    attributes:
-      label: 유튜브 URL
-      description: 선택 사항
-      placeholder: https://www.youtube.com/watch?v=...
-
   - type: textarea
     id: pdf
     attributes:

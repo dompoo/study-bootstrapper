@@ -5,7 +5,7 @@
 규칙
 - 헤더 파일 아래에 "## 📣 목차" 테이블을 자동 생성
 - 회차별 섹션(<a id="session-N"></a>)을 발표자 수에 맞게 2-column table 로 렌더
-- PDF / 썸네일 / 유튜브 링크는 sessions.yml 값을 그대로 사용
+- PDF / 썸네일 링크는 sessions.yml 값을 그대로 사용
 - 로컬 경로는 NFC로 URL 인코딩하여 GitHub raw/blob URL 로 변환
 """
 from __future__ import annotations
@@ -167,13 +167,8 @@ def render_session_section(s: dict) -> str:
                 out.append("    <td>&nbsp;</td>")
                 continue
             pdf_url = encode_repo_path(cell.get("pdf")) if cell.get("pdf") else ""
-            yt_url = cell.get("youtube") or ""
             out.append('    <td align="center">')
-            out.append(f'      <a href="{pdf_url}">[📚 {cell["title"]}]</a><br>')
-            if yt_url:
-                out.append(
-                    f'      <a href="{yt_url}">[🎥 {s["session"]}회차 발표 영상 - {cell["presenter"]}]</a>'
-                )
+            out.append(f'      <a href="{pdf_url}">[📚 {cell["title"]}]</a>')
             out.append("    </td>")
         out.append("  </tr>")
 

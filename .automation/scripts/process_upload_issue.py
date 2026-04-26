@@ -7,7 +7,7 @@
   - 환경변수 GITHUB_TOKEN: user-attachments 다운로드용
 
 동작
-  1) 본문에서 회차/발표 일자/발표자/제목/유튜브/PDF 링크 파싱
+  1) 본문에서 회차/발표 일자/발표자/제목/PDF 링크 파싱
   2) PDF 다운로드 (NFC 정규화된 파일명으로 저장)
   3) .automation/sessions.yml에 항목 추가 (해당 회차가 없으면 새 회차 생성)
 """
@@ -97,7 +97,6 @@ def main() -> int:
     date_raw = sections.get("발표 일자", "").strip()
     presenter = sections.get("발표자", "").strip()
     title = sections.get("제목", "").strip()
-    youtube_raw = sections.get("유튜브 URL", "").strip()
     pdf_field = sections.get("PDF 파일", "")
 
     if not session_str.isdigit():
@@ -113,8 +112,6 @@ def main() -> int:
     date = "" if date_raw in NO_RESPONSE_PLACEHOLDERS else date_raw
     if date and not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
         fail(f"발표 일자 형식이 잘못되었습니다 (YYYY-MM-DD 필요): {date!r}")
-
-    youtube = None if youtube_raw in NO_RESPONSE_PLACEHOLDERS else youtube_raw
 
     pdf_url = extract_pdf_url(pdf_field)
     if not pdf_url:
@@ -155,7 +152,6 @@ def main() -> int:
         "presenter": presenter,
         "pdf": pdf_rel,
         "thumbnail": None,
-        "youtube": youtube,
     }
 
     if target_session is None:
