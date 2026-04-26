@@ -9,7 +9,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: process-upload-${{ github.event.issue.number }}
+  group: repo-mutation
   cancel-in-progress: false
 
 jobs:
