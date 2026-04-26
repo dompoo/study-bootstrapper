@@ -6,7 +6,7 @@
   - 환경변수 ISSUE_BODY: 이슈 본문 (Issue Form 형식)
 
 동작
-  1) 본문에서 회차/발표자/제목 파싱
+  1) 본문에서 회차/스터디원/제목 파싱
   2) .automation/sessions.yml에서 (session, presenter, title) 일치 항목 검색
      - 0개 또는 2개 이상이면 실패하고 이슈에 코멘트로 안내
   3) PDF / 썸네일 PNG 삭제, sessions.yml에서 항목 제거
@@ -67,14 +67,14 @@ def main() -> int:
 
     sections = parse_issue_body(body)
     session_str = sections.get("회차", "").strip()
-    presenter = sections.get("발표자", "").strip()
+    presenter = sections.get("스터디원", "").strip()
     title = sections.get("제목", "").strip()
 
     if not session_str.isdigit():
         fail(f"회차는 숫자여야 합니다: {session_str!r}")
     session_no = int(session_str)
     if not presenter:
-        fail("발표자가 비어있습니다")
+        fail("스터디원이 비어있습니다")
     if not title:
         fail("제목이 비어있습니다")
 

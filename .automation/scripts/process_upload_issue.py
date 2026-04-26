@@ -7,7 +7,7 @@
   - 환경변수 GITHUB_TOKEN: user-attachments 다운로드용
 
 동작
-  1) 본문에서 회차/발표 일자/발표자/제목/PDF 링크 파싱
+  1) 본문에서 회차/스터디 일자/스터디원/제목/PDF 링크 파싱
   2) PDF 다운로드 (NFC 정규화된 파일명으로 저장)
   3) .automation/sessions.yml에 항목 추가 (해당 회차가 없으면 새 회차 생성)
 """
@@ -94,8 +94,8 @@ def main() -> int:
     sections = parse_issue_body(body)
 
     session_str = sections.get("회차", "").strip()
-    date_raw = sections.get("발표 일자", "").strip()
-    presenter = sections.get("발표자", "").strip()
+    date_raw = sections.get("스터디 일자", "").strip()
+    presenter = sections.get("스터디원", "").strip()
     title = sections.get("제목", "").strip()
     pdf_field = sections.get("PDF 파일", "")
 
@@ -105,13 +105,13 @@ def main() -> int:
     if session_no < 1 or session_no > 999:
         fail(f"회차 범위 초과: {session_no}")
     if not presenter:
-        fail("발표자가 비어있습니다")
+        fail("스터디원이 비어있습니다")
     if not title:
         fail("제목이 비어있습니다")
 
     date = "" if date_raw in NO_RESPONSE_PLACEHOLDERS else date_raw
     if date and not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
-        fail(f"발표 일자 형식이 잘못되었습니다 (YYYY-MM-DD 필요): {date!r}")
+        fail(f"스터디 일자 형식이 잘못되었습니다 (YYYY-MM-DD 필요): {date!r}")
 
     pdf_url = extract_pdf_url(pdf_field)
     if not pdf_url:
@@ -125,7 +125,7 @@ def main() -> int:
     target_session = next((s for s in data["sessions"] if s["session"] == session_no), None)
 
     if target_session is None and not date:
-        fail(f"S{session_no}는 새로 생성되는 회차이므로 발표 일자가 필요합니다")
+        fail(f"S{session_no}는 새로 생성되는 회차이므로 스터디 일자가 필요합니다")
     if target_session is not None:
         for p in target_session.get("presentations", []):
             if p.get("presenter") == presenter and p.get("title") == title:

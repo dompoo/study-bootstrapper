@@ -97,7 +97,7 @@ def render_toc(sessions: list[dict]) -> str:
     lines = [
         "## 📣 목차",
         "",
-        "| 회차 | 발표 주제 및 발표자 |",
+        "| 회차 | 발표 주제 및 스터디원 |",
         "| :--- | :--- |",
     ]
     for s in sessions:
