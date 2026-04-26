@@ -68,8 +68,8 @@
 
 ## 동작 원리
 
-- `.github/workflows/process-upload.yml` — `upload` 라벨이 붙은 이슈가 열리면 발동
-- `.github/workflows/process-rollback.yml` — `rollback` 라벨이 붙은 이슈가 열리면 발동
+- `.github/workflows/process-upload.yml` — 제목이 `[업로드]`로 시작하는 이슈가 열리면 발동
+- `.github/workflows/process-rollback.yml` — 제목이 `[롤백]`로 시작하는 이슈가 열리면 발동
 - `.github/workflows/build-readme.yml` — 수동 트리거 (workflow_dispatch)
 - `.automation/scripts/process_upload_issue.py` — 이슈 본문 파싱 → PDF 다운로드 → sessions.yml 추가
 - `.automation/scripts/process_rollback_issue.py` — 이슈 본문 파싱 → 항목/파일 삭제

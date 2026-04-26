@@ -15,7 +15,7 @@ concurrency:
 jobs:
   process:
     if: |
-      contains(github.event.issue.labels.*.name, 'upload') &&
+      startsWith(github.event.issue.title, '[업로드]') &&
       (github.event.issue.author_association == 'OWNER' ||
        github.event.issue.author_association == 'MEMBER' ||
        github.event.issue.author_association == 'COLLABORATOR' ||
