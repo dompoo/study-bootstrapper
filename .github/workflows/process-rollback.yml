@@ -74,6 +74,9 @@ jobs:
           PDF_PATH: ${{ steps.process.outputs.pdf_path }}
           THUMB_PATH: ${{ steps.process.outputs.thumb_path }}
           SESSION_DIR_REMOVED: ${{ steps.process.outputs.session_dir_removed }}
+          SESSION: ${{ steps.process.outputs.session }}
+          PRESENTER: ${{ steps.process.outputs.presenter }}
+          TITLE: ${{ steps.process.outputs.title }}
         with:
           script: |
             const lines = ["롤백 완료되었습니다."];
@@ -84,6 +87,10 @@ jobs:
             if (thumb) lines.push(`- 삭제된 썸네일: \`${thumb}\``);
             if (sessionDir) lines.push(`- 빈 회차 디렉터리 제거: \`${sessionDir}\``);
             lines.push("- .automation/sessions.yml / README가 갱신되었습니다.");
+            const session = process.env.SESSION;
+            const presenter = process.env.PRESENTER;
+            const title = process.env.TITLE;
+            const newTitle = `[롤백] ${session}회차 - ${presenter} / ${title}`;
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -94,6 +101,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
+              title: newTitle,
               state: 'closed',
               state_reason: 'completed'
             });
