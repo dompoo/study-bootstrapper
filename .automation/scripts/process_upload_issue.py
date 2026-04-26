@@ -7,9 +7,9 @@
   - 환경변수 GITHUB_TOKEN: user-attachments 다운로드용
 
 동작
-  1) 본문에서 주차/발표 일자/발표자/제목/유튜브/PDF 링크 파싱
+  1) 본문에서 회차/발표 일자/발표자/제목/유튜브/PDF 링크 파싱
   2) PDF 다운로드 (NFC 정규화된 파일명으로 저장)
-  3) .automation/weeks.yml에 항목 추가 (해당 주차가 없으면 새 주차 생성)
+  3) .automation/sessions.yml에 항목 추가 (해당 회차가 없으면 새 회차 생성)
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_FILE = ROOT / ".automation" / "weeks.yml"
+DATA_FILE = ROOT / ".automation" / "sessions.yml"
 
 NO_RESPONSE_PLACEHOLDERS = {"", "_No response_"}
 
@@ -93,18 +93,18 @@ def main() -> int:
 
     sections = parse_issue_body(body)
 
-    week_str = sections.get("주차", "").strip()
+    session_str = sections.get("회차", "").strip()
     date_raw = sections.get("발표 일자", "").strip()
     presenter = sections.get("발표자", "").strip()
     title = sections.get("제목", "").strip()
     youtube_raw = sections.get("유튜브 URL", "").strip()
     pdf_field = sections.get("PDF 파일", "")
 
-    if not week_str.isdigit():
-        fail(f"주차는 숫자여야 합니다: {week_str!r}")
-    week = int(week_str)
-    if week < 1 or week > 999:
-        fail(f"주차 범위 초과: {week}")
+    if not session_str.isdigit():
+        fail(f"회차는 숫자여야 합니다: {session_str!r}")
+    session_no = int(session_str)
+    if session_no < 1 or session_no > 999:
+        fail(f"회차 범위 초과: {session_no}")
     if not presenter:
         fail("발표자가 비어있습니다")
     if not title:
@@ -122,33 +122,33 @@ def main() -> int:
 
     with DATA_FILE.open() as f:
         data = yaml.safe_load(f) or {}
-    if not isinstance(data.get("weeks"), list):
-        data["weeks"] = []
+    if not isinstance(data.get("sessions"), list):
+        data["sessions"] = []
 
-    target_week = next((w for w in data["weeks"] if w["week"] == week), None)
+    target_session = next((s for s in data["sessions"] if s["session"] == session_no), None)
 
-    if target_week is None and not date:
-        fail(f"W{week}는 새로 생성되는 주차이므로 발표 일자가 필요합니다")
-    if target_week is not None:
-        for p in target_week.get("presentations", []):
+    if target_session is None and not date:
+        fail(f"S{session_no}는 새로 생성되는 회차이므로 발표 일자가 필요합니다")
+    if target_session is not None:
+        for p in target_session.get("presentations", []):
             if p.get("presenter") == presenter and p.get("title") == title:
-                fail(f"이미 같은 항목이 등록되어 있습니다: W{week} {presenter} {title!r}")
+                fail(f"이미 같은 항목이 등록되어 있습니다: S{session_no} {presenter} {title!r}")
 
     print(f"PDF 다운로드: {pdf_url}")
     pdf_bytes = download_pdf(pdf_url)
 
-    week_dir_name = unicodedata.normalize("NFC", f"{week:02d}_{week}주차")
-    week_dir = ROOT / week_dir_name
-    week_dir.mkdir(parents=True, exist_ok=True)
+    session_dir_name = unicodedata.normalize("NFC", f"{session_no:02d}_{session_no}회차")
+    session_dir = ROOT / session_dir_name
+    session_dir.mkdir(parents=True, exist_ok=True)
 
     file_basename = slugify_filename(title) + ".pdf"
-    pdf_path = week_dir / file_basename
+    pdf_path = session_dir / file_basename
     if pdf_path.exists():
         fail(f"이미 같은 경로에 파일이 있습니다: {pdf_path.relative_to(ROOT)}")
     pdf_path.write_bytes(pdf_bytes)
     print(f"저장: {pdf_path.relative_to(ROOT)} ({len(pdf_bytes):,} bytes)")
 
-    pdf_rel = f"{week_dir_name}/{file_basename}"
+    pdf_rel = f"{session_dir_name}/{file_basename}"
 
     new_entry = {
         "title": title,
@@ -158,22 +158,22 @@ def main() -> int:
         "youtube": youtube,
     }
 
-    if target_week is None:
-        data["weeks"].append({
-            "week": week,
+    if target_session is None:
+        data["sessions"].append({
+            "session": session_no,
             "date": date,
             "presentations": [new_entry],
         })
-        data["weeks"].sort(key=lambda w: w["week"])
-        print(f"새 주차 생성: W{week} ({date})")
+        data["sessions"].sort(key=lambda s: s["session"])
+        print(f"새 회차 생성: S{session_no} ({date})")
     else:
-        target_week.setdefault("presentations", []).append(new_entry)
-        print(f"기존 주차에 추가: W{week}")
+        target_session.setdefault("presentations", []).append(new_entry)
+        print(f"기존 회차에 추가: S{session_no}")
 
     with DATA_FILE.open("w") as f:
         yaml.dump(data, f, allow_unicode=True, sort_keys=False, width=1000)
 
-    set_output("week", str(week))
+    set_output("session", str(session_no))
     set_output("presenter", presenter)
     set_output("title", title)
     set_output("pdf_path", pdf_rel)

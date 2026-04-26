@@ -49,13 +49,13 @@ jobs:
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           PRESENTER: ${{ steps.process.outputs.presenter }}
-          WEEK: ${{ steps.process.outputs.week }}
+          SESSION: ${{ steps.process.outputs.session }}
           PDF_PATH: ${{ steps.process.outputs.pdf_path }}
           THUMB_PATH: ${{ steps.process.outputs.thumb_path }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A .automation/weeks.yml README.md
+          git add -A .automation/sessions.yml README.md
           [ -n "$PDF_PATH" ] && git add -A -- "$PDF_PATH"
           [ -n "$THUMB_PATH" ] && git add -A -- "$THUMB_PATH"
           if git diff --cached --quiet; then
@@ -63,7 +63,7 @@ jobs:
             echo "committed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git commit -m "docs: ${WEEK}주차 발표자료 롤백 (${PRESENTER}, #${ISSUE_NUMBER})"
+          git commit -m "docs: ${SESSION}회차 발표자료 롤백 (${PRESENTER}, #${ISSUE_NUMBER})"
           git push
           echo "committed=true" >> "$GITHUB_OUTPUT"
 
@@ -73,17 +73,17 @@ jobs:
         env:
           PDF_PATH: ${{ steps.process.outputs.pdf_path }}
           THUMB_PATH: ${{ steps.process.outputs.thumb_path }}
-          WEEK_DIR_REMOVED: ${{ steps.process.outputs.week_dir_removed }}
+          SESSION_DIR_REMOVED: ${{ steps.process.outputs.session_dir_removed }}
         with:
           script: |
             const lines = ["롤백 완료되었습니다."];
             const pdf = process.env.PDF_PATH;
             const thumb = process.env.THUMB_PATH;
-            const weekDir = process.env.WEEK_DIR_REMOVED;
+            const sessionDir = process.env.SESSION_DIR_REMOVED;
             if (pdf) lines.push(`- 삭제된 PDF: \`${pdf}\``);
             if (thumb) lines.push(`- 삭제된 썸네일: \`${thumb}\``);
-            if (weekDir) lines.push(`- 빈 주차 디렉터리 제거: \`${weekDir}\``);
-            lines.push("- .automation/weeks.yml / README가 갱신되었습니다.");
+            if (sessionDir) lines.push(`- 빈 회차 디렉터리 제거: \`${sessionDir}\``);
+            lines.push("- .automation/sessions.yml / README가 갱신되었습니다.");
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,

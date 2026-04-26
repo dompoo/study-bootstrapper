@@ -6,12 +6,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        실수로 업로드된 발표자료를 롤백합니다. (주차, 발표자, 제목)이 정확히 일치하는 항목 1개를 찾아 삭제하고 썸네일·README를 함께 갱신합니다. 일치하는 항목이 0개거나 2개 이상이면 작업이 실패하고 이슈에 코멘트로 안내합니다.
+        실수로 업로드된 발표자료를 롤백합니다. (회차, 발표자, 제목)이 정확히 일치하는 항목 1개를 찾아 삭제하고 썸네일·README를 함께 갱신합니다. 일치하는 항목이 0개거나 2개 이상이면 작업이 실패하고 이슈에 코멘트로 안내합니다.
 
   - type: input
-    id: week
+    id: session
     attributes:
-      label: 주차
+      label: 회차
       description: 숫자만 입력해주세요 (예 17)
       placeholder: "17"
     validations:
@@ -21,7 +21,7 @@ body:
     id: presenter
     attributes:
       label: 발표자
-      description: weeks.yml에 등록된 발표자명과 정확히 일치해야 합니다
+      description: sessions.yml에 등록된 발표자명과 정확히 일치해야 합니다
       placeholder: 돔푸
     validations:
       required: true
@@ -30,7 +30,7 @@ body:
     id: title
     attributes:
       label: 제목
-      description: weeks.yml에 등록된 제목과 정확히 일치해야 합니다
+      description: sessions.yml에 등록된 제목과 정확히 일치해야 합니다
       placeholder: 홈서버 구축기
     validations:
       required: true

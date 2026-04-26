@@ -2,8 +2,8 @@
 """
 PDF 발표자료의 첫 페이지를 PNG 썸네일로 추출한다.
 
-입력: .automation/weeks.yml
-출력: .automation/thumbnails/w{week:02d}_{slug}.png
+입력: .automation/sessions.yml
+출력: .automation/thumbnails/s{session:02d}_{slug}.png
 
 규칙
 - `thumbnail:` 필드가 비어있거나 로컬 `.automation/thumbnails/` 경로일 때만 자동 생성
@@ -13,9 +13,7 @@ PDF 발표자료의 첫 페이지를 PNG 썸네일로 추출한다.
 """
 from __future__ import annotations
 
-import os
 import re
-import shutil
 import subprocess
 import sys
 import unicodedata
@@ -28,11 +26,11 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent.parent
 THUMB_DIR = ROOT / ".automation" / "thumbnails"
 THUMB_REL_PREFIX = ".automation/thumbnails"
-DATA_FILE = ROOT / ".automation" / "weeks.yml"
+DATA_FILE = ROOT / ".automation" / "sessions.yml"
 
 
-def slugify(presenter: str, title: str) -> str:
-    # Use presenter as primary key (unique within a week)
+def slugify(presenter: str) -> str:
+    # Use presenter as primary key (unique within a session)
     s = re.sub(r"[^0-9A-Za-z가-힣]+", "_", presenter).strip("_")
     return s or "unknown"
 
@@ -67,9 +65,9 @@ def main() -> int:
     skipped = 0
     warnings = 0
 
-    for week in (data.get("weeks") or []):
-        wk = week["week"]
-        for pres in week["presentations"]:
+    for session in (data.get("sessions") or []):
+        sn = session["session"]
+        for pres in session["presentations"]:
             pdf_rel = pres.get("pdf")
             thumb = pres.get("thumbnail")
 
@@ -82,12 +80,12 @@ def main() -> int:
 
             pdf_path = ROOT / unicodedata.normalize("NFC", pdf_rel)
             if not pdf_path.exists():
-                print(f"warn: missing pdf for week {wk} / {pres['presenter']}: {pdf_rel}", file=sys.stderr)
+                print(f"warn: missing pdf for session {sn} / {pres['presenter']}: {pdf_rel}", file=sys.stderr)
                 warnings += 1
                 continue
 
-            slug = slugify(pres["presenter"], pres["title"])
-            out_png = THUMB_DIR / f"w{wk:02d}_{slug}.png"
+            slug = slugify(pres["presenter"])
+            out_png = THUMB_DIR / f"s{sn:02d}_{slug}.png"
             thumb_rel = f"{THUMB_REL_PREFIX}/{out_png.name}"
 
             if not needs_rebuild(out_png, pdf_path):
@@ -99,18 +97,18 @@ def main() -> int:
                 continue
 
             if extract_first_page(pdf_path, out_png):
-                print(f"ok  : week {wk} {pres['presenter']} -> {out_png.relative_to(ROOT)}")
+                print(f"ok  : session {sn} {pres['presenter']} -> {out_png.relative_to(ROOT)}")
                 pres["thumbnail"] = thumb_rel
                 generated += 1
             else:
                 warnings += 1
 
-    # Persist any thumbnail field updates back to .automation/weeks.yml
+    # Persist any thumbnail field updates back to .automation/sessions.yml
     with DATA_FILE.open("w") as f:
         yaml.dump(data, f, allow_unicode=True, sort_keys=False, width=1000)
 
     print(f"\ndone. generated={generated} skipped={skipped} warnings={warnings}")
-    return 0 if warnings == 0 else 0  # non-fatal
+    return 0
 
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-.automation/weeks.yml + .automation/templates/readme_header.md 로 README.md 전체를 재생성한다.
+.automation/sessions.yml + .automation/templates/readme_header.md 로 README.md 전체를 재생성한다.
 
 규칙
 - 헤더 파일 아래에 "## 📣 목차" 테이블을 자동 생성
-- 주차별 섹션(<a id="week-N"></a>)을 발표자 수에 맞게 2-column table 로 렌더
-- PDF / 썸네일 / 유튜브 링크는 weeks.yml 값을 그대로 사용
+- 회차별 섹션(<a id="session-N"></a>)을 발표자 수에 맞게 2-column table 로 렌더
+- PDF / 썸네일 / 유튜브 링크는 sessions.yml 값을 그대로 사용
 - 로컬 경로는 NFC로 URL 인코딩하여 GitHub raw/blob URL 로 변환
 """
 from __future__ import annotations
@@ -23,7 +23,7 @@ import yaml
 
 # Script lives at .automation/scripts/; repo root is two levels up.
 ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_FILE = ROOT / ".automation" / "weeks.yml"
+DATA_FILE = ROOT / ".automation" / "sessions.yml"
 HEADER_FILE = ROOT / ".automation" / "templates" / "readme_header.md"
 OUT_FILE = ROOT / "README.md"
 
@@ -59,7 +59,6 @@ def encode_repo_path(rel_path: str, for_raw: bool = False) -> str:
     """Encode a repo-relative path into a GitHub URL.
 
     All segments are NFC-normalized so URLs match the repo's stored filenames.
-    (Earlier NFD duplicates were removed in commit c195de5.)
     """
     if not rel_path:
         return ""
@@ -83,8 +82,8 @@ def thumb_url(rel_path: str | None) -> str:
     return encode_repo_path(rel_path, for_raw=True)
 
 
-def anchor_for_toc(week: int) -> str:
-    return f"#week-{week}"
+def anchor_for_toc(session: int) -> str:
+    return f"#session-{session}"
 
 
 def format_date(date_str: str) -> tuple[str, str]:
@@ -94,26 +93,26 @@ def format_date(date_str: str) -> tuple[str, str]:
     return long, short
 
 
-def render_toc(weeks: list[dict]) -> str:
+def render_toc(sessions: list[dict]) -> str:
     lines = [
         "## 📣 목차",
         "",
-        "| 주차 | 발표 주제 및 발표자 |",
+        "| 회차 | 발표 주제 및 발표자 |",
         "| :--- | :--- |",
     ]
-    for w in weeks:
-        long, short = format_date(w["date"])
+    for s in sessions:
+        long, short = format_date(s["date"])
         items = "<br>".join(
-            f"• {p['title']} (👤 {p['presenter']})" for p in w["presentations"]
+            f"• {p['title']} (👤 {p['presenter']})" for p in s["presentations"]
         )
-        lines.append(f"| [**{w['week']}주차** ({short})]({anchor_for_toc(w['week'])}) | {items} |")
+        lines.append(f"| [**{s['session']}회차** ({short})]({anchor_for_toc(s['session'])}) | {items} |")
     lines.extend(["", "", "<br>", "<br>", ""])
     return "\n".join(lines)
 
 
-def render_week_section(w: dict) -> str:
-    long_date, _ = format_date(w["date"])
-    ps = w["presentations"]
+def render_session_section(s: dict) -> str:
+    long_date, _ = format_date(s["date"])
+    ps = s["presentations"]
     n = len(ps)
 
     # Title table
@@ -122,9 +121,9 @@ def render_week_section(w: dict) -> str:
     presenter_cells = " | ".join(p["presenter"] for p in ps)
 
     out = [
-        f'<a id="week-{w["week"]}"></a>',
+        f'<a id="session-{s["session"]}"></a>',
         "",
-        f'## **{w["week"]}주차** ( {long_date} )',
+        f'## **{s["session"]}회차** ( {long_date} )',
         "",
         f"> | {title_cells} |",
         f"> | {divider} |",
@@ -173,7 +172,7 @@ def render_week_section(w: dict) -> str:
             out.append(f'      <a href="{pdf_url}">[📚 {cell["title"]}]</a><br>')
             if yt_url:
                 out.append(
-                    f'      <a href="{yt_url}">[🎥 {w["week"]}주차 발표 영상 - {cell["presenter"]}]</a>'
+                    f'      <a href="{yt_url}">[🎥 {s["session"]}회차 발표 영상 - {cell["presenter"]}]</a>'
                 )
             out.append("    </td>")
         out.append("  </tr>")
@@ -184,18 +183,18 @@ def render_week_section(w: dict) -> str:
 
 def main() -> int:
     data = yaml.safe_load(DATA_FILE.read_text()) or {}
-    weeks = sorted(data.get("weeks") or [], key=lambda w: w["week"])
+    sessions = sorted(data.get("sessions") or [], key=lambda s: s["session"])
 
     header = HEADER_FILE.read_text().rstrip() + "\n\n"
-    if weeks:
-        toc = render_toc(weeks)
-        sections = "\n".join("<br/>\n" + render_week_section(w) for w in weeks)
-        content = header + toc + sections
+    if sessions:
+        toc = render_toc(sessions)
+        body = "\n".join("<br/>\n" + render_session_section(s) for s in sessions)
+        content = header + toc + body
     else:
         content = header + "_아직 등록된 발표가 없습니다. 첫 이슈를 등록해보세요._\n"
 
     OUT_FILE.write_text(content)
-    print(f"wrote {OUT_FILE} ({len(weeks)} weeks)")
+    print(f"wrote {OUT_FILE} ({len(sessions)} sessions)")
     return 0
 
 

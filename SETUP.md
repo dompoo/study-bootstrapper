@@ -3,6 +3,8 @@
 이 레포는 **발표자료(PDF) 업로드용 템플릿**입니다.   
 "Use this template" 버튼으로 새 레포를 만들면 GitHub Actions가 알아서 PDF 다운로드 → 썸네일 추출 → README 갱신까지 처리합니다.
 
+> 💡 **회차(session) 개념**: 한 회차는 한 번의 스터디 모임이며, 여러 발표가 묶입니다. 1주에 여러 회차를 진행해도 됩니다.
+
 ---
 
 ## 1. 새 레포 만들기
@@ -31,9 +33,9 @@
 1. **Issues** 탭 → **New issue** → **`발표자료 업로드`** 선택
 2. 폼을 채우고 PDF 파일을 드래그&드롭 후 Submit
 3. GitHub Actions가 자동으로:
-   - PDF를 `NN_N주차/` 디렉터리에 저장
+   - PDF를 `NN_N회차/` 디렉터리에 저장
    - 첫 페이지 썸네일을 `.automation/thumbnails/` 에 생성
-   - `.automation/weeks.yml` 갱신
+   - `.automation/sessions.yml` 갱신
    - README 재생성 후 커밋&푸시
    - 이슈에 완료 코멘트를 달고 close
 
@@ -41,8 +43,8 @@
 
 | 항목 | 필수 | 설명 |
 | :--- | :---: | :--- |
-| 주차 | ✅ | 숫자만 (예: `17`) |
-| 발표 일자 | 🔸 | `YYYY-MM-DD`. 새 주차일 때만 필수, 기존 주차에 추가하면 비워두셔도 됩니다 |
+| 회차 | ✅ | 숫자만 (예: `17`) |
+| 발표 일자 | 🔸 | `YYYY-MM-DD`. 새 회차일 때만 필수, 기존 회차에 추가하면 비워두셔도 됩니다 |
 | 발표자 | ✅ | 닉네임 또는 이름 |
 | 제목 | ✅ | 발표 제목 |
 | 유튜브 URL | ❌ | 영상 링크 (선택) |
@@ -53,14 +55,14 @@
 발표자료를 잘못 올렸다면:
 
 1. **New issue** → **`발표자료 롤백`** 선택
-2. 주차 / 발표자 / 제목을 정확히 일치하게 입력
-3. Submit하면 자동으로 PDF / 썸네일 / weeks.yml 항목이 제거되고 README가 재생성됩니다
+2. 회차 / 발표자 / 제목을 정확히 일치하게 입력
+3. Submit하면 자동으로 PDF / 썸네일 / sessions.yml 항목이 제거되고 README가 재생성됩니다
 
-(주차 / 발표자 / 제목이 정확히 일치하는 항목이 1개일 때만 처리됩니다. 0개 또는 2개 이상이면 실패하고 코멘트로 안내됩니다.)
+(회차 / 발표자 / 제목이 정확히 일치하는 항목이 1개일 때만 처리됩니다. 0개 또는 2개 이상이면 실패하고 코멘트로 안내됩니다.)
 
 ## 5. README 수동 재빌드
 
-`.automation/weeks.yml`을 직접 손볼 일이 생긴다면, **Actions** 탭 → **Build README** → **Run workflow** 로 수동 재생성을 트리거할 수 있습니다.
+`.automation/sessions.yml`을 직접 손볼 일이 생긴다면, **Actions** 탭 → **Build README** → **Run workflow** 로 수동 재생성을 트리거할 수 있습니다.
 
 ---
 
@@ -69,10 +71,10 @@
 - `.github/workflows/process-upload.yml` — `upload` 라벨이 붙은 이슈가 열리면 발동
 - `.github/workflows/process-rollback.yml` — `rollback` 라벨이 붙은 이슈가 열리면 발동
 - `.github/workflows/build-readme.yml` — 수동 트리거 (workflow_dispatch)
-- `.automation/scripts/process_upload_issue.py` — 이슈 본문 파싱 → PDF 다운로드 → weeks.yml 추가
+- `.automation/scripts/process_upload_issue.py` — 이슈 본문 파싱 → PDF 다운로드 → sessions.yml 추가
 - `.automation/scripts/process_rollback_issue.py` — 이슈 본문 파싱 → 항목/파일 삭제
 - `.automation/scripts/generate_thumbnails.py` — PDF 첫 페이지를 PNG로 추출 (poppler-utils 사용)
-- `.automation/scripts/generate_readme.py` — `weeks.yml` + `readme_header.md` → `README.md` 재생성
+- `.automation/scripts/generate_readme.py` — `sessions.yml` + `readme_header.md` → `README.md` 재생성
 
 PDF / 썸네일 / README의 GitHub URL은 워크플로 실행 시점의 `GITHUB_REPOSITORY` 환경변수에서 자동으로 만들어지므로 별도 설정이 필요 없습니다.
 
@@ -84,5 +86,5 @@ PDF / 썸네일 / README의 GitHub URL은 워크플로 실행 시점의 `GITHUB_
 
 - **"PDF 첨부 링크를 본문에서 찾을 수 없습니다"** — 이슈 폼의 PDF 영역에 파일이 첨부되지 않았거나 GitHub의 user-attachments 링크 형식이 아닐 때 발생합니다. 이슈를 닫고 다시 작성해보세요.
 - **"받은 파일이 PDF가 아닙니다"** — 첨부 파일이 손상되었거나 PDF가 아닐 때 발생합니다.
-- **"이미 같은 항목이 등록되어 있습니다"** — 같은 주차에 같은 발표자/제목이 이미 등록돼 있습니다. 롤백 후 다시 올려주세요.
+- **"이미 같은 항목이 등록되어 있습니다"** — 같은 회차에 같은 발표자/제목이 이미 등록돼 있습니다. 롤백 후 다시 올려주세요.
 - 워크플로가 실패하면 이슈에 자동으로 코멘트가 달리고 워크플로 로그 링크가 포함됩니다.
