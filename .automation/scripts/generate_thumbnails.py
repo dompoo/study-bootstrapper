@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PDF 발표자료의 첫 페이지를 PNG 썸네일로 추출한다.
+PDF 스터디자료의 첫 페이지를 PNG 썸네일로 추출한다.
 
 입력: .automation/sessions.yml
 출력: .automation/thumbnails/s{session:02d}_{slug}.png

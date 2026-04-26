@@ -1,11 +1,11 @@
-name: 발표자료 업로드
+name: 스터디자료 업로드
 description: PDF와 메타데이터를 입력하면 .automation/sessions.yml과 README가 자동으로 갱신됩니다
 title: "[업로드] "
 body:
   - type: markdown
     attributes:
       value: |
-        발표자료를 업로드합니다. 이슈를 제출하면 자동으로 처리되고 완료 후 close 됩니다.
+        스터디자료를 업로드합니다. 이슈를 제출하면 자동으로 처리되고 완료 후 close 됩니다.
         제목은 그대로 두셔도 됩니다 — 처리 후 `[업로드] N회차 - 스터디원 / 제목` 형식으로 자동 갱신됩니다.
 
   - type: input

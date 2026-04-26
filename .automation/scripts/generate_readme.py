@@ -129,7 +129,7 @@ def render_session_section(s: dict) -> str:
         f"> | {divider} |",
         f"> | {presenter_cells} |",
         "",
-        "### 💎 발표자료",
+        "### 💎 스터디자료",
         "",
         "<table>",
     ]
